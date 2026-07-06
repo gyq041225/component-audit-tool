@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component Audit Tool · 设计系统分析</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <header class="header">
+      <div class="header-inner">
+        <div class="logo">
+          <span class="logo-icon">⚙️</span>
+          <span class="logo-text">Component Audit Tool</span>
+        </div>
+        <p class="header-desc">用 AI 分析设计稿中的组件一致性、找出重复、优化设计系统</p>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="upload-section">
+        <div class="mode-tabs">
+          <button class="mode-tab active" data-mode="image" onclick="switchMode('image')">📸 上传截图</button>
+          <button class="mode-tab" data-mode="figma" onclick="switchMode('figma')">🎨 Figma 链接</button>
+        </div>
+
+        <div id="imageMode">
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">
+              <p class="upload-title">拖拽或点击上传设计稿</p>
+              <p class="upload-hint">支持 PNG、JPG、WebP 格式（推荐 1200px+ 宽度）</p>
+            </div>
+            <input type="file" id="imageInput" accept="image/*" hidden />
+          </div>
+
+          <div class="file-info" id="fileInfo" style="display: none">
+            <div class="file-preview">
+              <img id="previewImage" alt="Preview" />
+            </div>
+            <div class="file-details">
+              <p id="fileName"></p>
+              <p id="fileSize"></p>
+            </div>
+            <button class="btn-secondary" onclick="resetUpload()">重新选择</button>
+          </div>
+        </div>
+
+        <div id="figmaMode" style="display: none">
+          <div class="figma-input-zone">
+            <div class="upload-icon">🎨</div>
+            <p class="upload-title">粘贴 Figma 文件链接</p>
+            <p class="upload-hint">支持 figma.com/file/... 或 figma.com/design/... 链接（文件需要你的 Token 有访问权限）</p>
+            <input
+              type="text"
+              id="figmaUrlInput"
+              class="figma-url-input"
+              placeholder="https://www.figma.com/design/xxxxx/your-file"
+            />
+            <details class="figma-token-details">
+              <summary>用你自己的 Figma Token（可选）</summary>
+              <input
+                type="password"
+                id="figmaTokenInput"
+                class="figma-url-input"
+                placeholder="figd_xxxxxxxx（留空则使用后端配置的 Token）"
+              />
+              <p class="upload-hint" style="margin-top: 8px">
+                在 <a href="https://www.figma.com/settings" target="_blank">Figma 设置</a> 里生成，只需 File content 读权限
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-section">
+        <details class="spec-details" id="specDetails">
+          <summary class="spec-summary">
+            <span class="spec-summary-title">📋 设计规范（可选）</span>
+            <span class="spec-summary-hint">加上规范后，AI 会对照检查每一条是否合规</span>
+          </summary>
+          <div class="spec-body">
+            <div class="spec-tabs">
+              <button class="spec-tab active" data-spec="text" onclick="switchSpecMode('text')">粘贴文字</button>
+              <button class="spec-tab" data-spec="file" onclick="switchSpecMode('file')">上传文件</button>
+            </div>
+
+            <div id="specTextMode">
+              <textarea
+                id="specTextInput"
+                class="spec-textarea"
+                placeholder="粘贴设计规范内容，例如：&#10;&#10;主色 #4D7CFE&#10;字号：12/14/16/20/24/32&#10;圆角：4/8/12&#10;间距：4/8/12/16/24/32/48"
+              ></textarea>
+            </div>
+
+            <div id="specFileMode" style="display: none">
+              <div class="spec-upload-zone" id="specUploadZone">
+                <div class="upload-icon">📄</div>
+                <p class="upload-title">上传规范文档</p>
+                <p class="upload-hint">支持 PDF / JSON / TXT / MD 格式</p>
+                <input type="file" id="specFileInput" accept=".pdf,.json,.txt,.md,application/pdf,application/json,text/plain,text/markdown" hidden />
+              </div>
+              <div class="spec-file-info" id="specFileInfo" style="display: none">
+                <span id="specFileName"></span>
+                <button class="btn-secondary" onclick="clearSpecFile()">移除</button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="action-section">
+        <button class="btn-primary" id="analyzeBtn" onclick="startAnalysis()">
+          <span id="btnText">开始分析</span>
+          <span id="btnSpinner" style="display: none">⏳</span>
+        </button>
+      </section>
+
+      <section class="result-section" id="resultSection" style="display: none">
+        <!-- Summary Card -->
+        <div class="summary-card">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">组件数量</span>
+              <span class="summary-value" id="summaryComponents">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">一致性评分</span>
+              <span class="summary-value" id="summaryConsistency">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">系统成熟度</span>
+              <span class="summary-value" id="summaryMaturity">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">整体质量</span>
+              <span class="summary-value" id="summaryQuality">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance Section -->
+        <div class="section-card" id="complianceSection" style="display: none">
+          <h2 class="section-title">🎯 合规检查</h2>
+          <div class="compliance-summary" id="complianceSummary"></div>
+          <div class="compliance-list" id="complianceList"></div>
+        </div>
+
+        <!-- Issues Section -->
+        <div class="section-card" id="issuesSection" style="display: none">
+          <h2 class="section-title">⚠️ 发现的问题</h2>
+          <div class="issues-list" id="issuesList"></div>
+        </div>
+
+        <!-- Components Section -->
+        <div class="section-card" id="componentsSection" style="display: none">
+          <h2 class="section-title">🎨 识别的组件</h2>
+          <div class="components-list" id="componentsList"></div>
+        </div>
+
+        <!-- Suggestions Section -->
+        <div class="section-card" id="suggestionsSection" style="display: none">
+          <h2 class="section-title">💡 优化建议</h2>
+          <div class="suggestions-list" id="suggestionsList"></div>
+        </div>
+
+        <!-- Color Palette Section -->
+        <div class="section-card" id="colorSection" style="display: none">
+          <h2 class="section-title">🎨 色彩系统</h2>
+          <div class="color-grid" id="colorGrid"></div>
+        </div>
+
+        <!-- Typography Section -->
+        <div class="section-card" id="typographySection" style="display: none">
+          <h2 class="section-title">🔤 字体系统</h2>
+          <div class="typography-list" id="typographyList"></div>
+        </div>
+
+        <!-- Export Button -->
+        <div class="export-section">
+          <button class="btn-secondary" onclick="exportReport()">📥 导出为 JSON</button>
+          <button class="btn-secondary" onclick="resetAll()">🔄 分析另一个</button>
+        </div>
+      </section>
+
+      <section class="error-section" id="errorSection" style="display: none">
+        <div class="error-card">
+          <p class="error-title">分析出错</p>
+          <p class="error-message" id="errorMessage"></p>
+          <button class="btn-secondary" onclick="resetAll()">返回重新分析</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Component Audit Tool v1.0 · 由 Yaqi Gou 开发 · Powered by Claude Vision API</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
