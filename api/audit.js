@@ -5,15 +5,21 @@ const { extractSpecText, truncateSpec } = require('../lib/spec');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const auditPrompt = fs.readFileSync(
-  path.join(process.cwd(), 'prompts', 'audit.prompt.md'),
-  'utf-8'
-);
+function loadPrompt(name) {
+  const candidates = [
+    path.join(__dirname, '..', 'prompts', name),
+    path.join(process.cwd(), 'prompts', name),
+  ];
+  for (const p of candidates) {
+    try {
+      return fs.readFileSync(p, 'utf-8');
+    } catch (_) {}
+  }
+  throw new Error(`Prompt file not found: ${name}`);
+}
 
-const specAuditPrompt = fs.readFileSync(
-  path.join(process.cwd(), 'prompts', 'spec-audit.prompt.md'),
-  'utf-8'
-);
+const auditPrompt = loadPrompt('audit.prompt.md');
+const specAuditPrompt = loadPrompt('spec-audit.prompt.md');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
