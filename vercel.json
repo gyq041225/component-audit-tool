@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": null,
+  "outputDirectory": "public",
   "functions": {
     "api/audit.js": {
       "maxDuration": 60,
@@ -11,8 +13,5 @@
       "memory": 1024,
       "includeFiles": "prompts/**"
     }
-  },
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" }
-  ]
+  }
 }
