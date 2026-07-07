@@ -199,7 +199,15 @@ async function startAnalysis() {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      if (response.status === 504 || response.status === 502) {
+        throw new Error('分析超时(60 秒上限)。这个 Figma 文件太大,请试试更小的文件或单个页面');
+      }
+      throw new Error(`服务返回异常(${response.status}),请稍后重试`);
+    }
 
     if (!response.ok) {
       throw new Error(data.error || '分析失败');

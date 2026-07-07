@@ -190,23 +190,23 @@ app.post('/api/audit-figma', async (req, res) => {
       fileName: designData.fileName,
       pages: designData.pages,
       stats: designData.stats,
-      colors: designData.colors.slice(0, 40),
-      fontSizes: designData.fontSizes.slice(0, 30),
-      fontFamilies: designData.fontFamilies.slice(0, 20),
-      cornerRadii: designData.cornerRadii.slice(0, 20),
-      spacings: designData.spacings.slice(0, 20),
-      componentSets: designData.componentSets.slice(0, 40),
-      topComponents: designData.components.slice(0, 60),
+      colors: designData.colors.slice(0, 25),
+      fontSizes: designData.fontSizes.slice(0, 20),
+      fontFamilies: designData.fontFamilies.slice(0, 12),
+      cornerRadii: designData.cornerRadii.slice(0, 15),
+      spacings: designData.spacings.slice(0, 15),
+      componentSets: designData.componentSets.slice(0, 25),
+      topComponents: designData.components.slice(0, 40),
     };
 
     const spec = await buildSpecSection(req.body);
     const basePrompt = spec.hasSpec ? specAuditPrompt : figmaAuditPrompt;
 
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       generationConfig: {
         responseMimeType: 'application/json',
-        maxOutputTokens: 32768,
+        maxOutputTokens: 12288,
       },
     });
 
