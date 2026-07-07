@@ -166,27 +166,45 @@
           <div class="annotation-legend" id="annotationLegend"></div>
         </div>
 
-        <!-- Summary Card -->
-        <div class="summary-card">
-          <div class="summary-grid">
-            <div class="summary-item">
-              <span class="summary-label">组件数量</span>
-              <span class="summary-value" id="summaryComponents">-</span>
+        <!-- Hero Summary -->
+        <div class="hero-summary" id="heroSummary">
+          <div class="hero-ring-wrap">
+            <svg class="hero-ring" viewBox="0 0 120 120" id="heroRing">
+              <circle class="hero-ring-track" cx="60" cy="60" r="52" />
+              <circle class="hero-ring-fill" cx="60" cy="60" r="52" id="heroRingFill" />
+            </svg>
+            <div class="hero-ring-center">
+              <div class="hero-ring-num" id="summaryConsistency">-</div>
+              <div class="hero-ring-label">一致性</div>
             </div>
-            <div class="summary-item">
-              <span class="summary-label">一致性评分</span>
-              <span class="summary-value" id="summaryConsistency">-</span>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-icon">📦</div>
+              <div class="hero-stat-body">
+                <div class="hero-stat-num" id="summaryComponents">-</div>
+                <div class="hero-stat-label">组件数量</div>
+              </div>
             </div>
-            <div class="summary-item">
-              <span class="summary-label">系统成熟度</span>
-              <span class="summary-value" id="summaryMaturity">-</span>
+            <div class="hero-stat">
+              <div class="hero-stat-icon">🎯</div>
+              <div class="hero-stat-body">
+                <div class="hero-stat-num" id="summaryMaturity">-</div>
+                <div class="hero-stat-label">系统成熟度</div>
+              </div>
             </div>
-            <div class="summary-item">
-              <span class="summary-label">整体质量</span>
-              <span class="summary-value" id="summaryQuality">-</span>
+            <div class="hero-stat">
+              <div class="hero-stat-icon">✨</div>
+              <div class="hero-stat-body">
+                <div class="hero-stat-num" id="summaryQuality">-</div>
+                <div class="hero-stat-label">整体质量</div>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Issue Stats Bar -->
+        <div class="issue-stats-bar" id="issueStatsBar" style="display: none"></div>
 
         <!-- Compliance Section -->
         <div class="section-card" id="complianceSection" style="display: none">

@@ -448,12 +448,14 @@ function renderResults(analysis, fullData) {
 
   renderCompliance(analysis);
 
-  // Summary
-  document.getElementById('summaryComponents').textContent = analysis.summary?.component_count || '-';
-  document.getElementById('summaryConsistency').textContent = `${analysis.summary?.consistency_score || '-'}%`;
-  document.getElementById('summaryMaturity').textContent = `${analysis.summary?.maturity_level || '-'}/10`;
-
+  // Hero Summary
+  const score = analysis.summary?.consistency_score;
+  document.getElementById('summaryComponents').textContent = analysis.summary?.component_count ?? '-';
+  document.getElementById('summaryConsistency').textContent = score != null ? `${score}%` : '-';
+  document.getElementById('summaryMaturity').textContent = analysis.summary?.maturity_level != null ? `${analysis.summary.maturity_level}/10` : '-';
   document.getElementById('summaryQuality').textContent = localize(QUALITY_LABELS, analysis.summary?.overallQuality, '-');
+  updateHeroRing(score);
+  renderIssueStatsBar(analysis.issues || []);
 
   // Issues
   if (analysis.issues && analysis.issues.length > 0) {
@@ -479,24 +481,32 @@ function renderResults(analysis, fullData) {
   if (analysis.components && analysis.components.length > 0) {
     const componentsList = document.getElementById('componentsList');
     componentsList.innerHTML = analysis.components
-      .map(
-        (comp) => `
-      <div class="component-item">
+      .map((comp) => {
+        const cat = normalizeCategory(comp.category);
+        const color = colorForCategory(comp.category);
+        const cons = typeof comp.consistency === 'number' ? comp.consistency : 0;
+        const consColor = scoreColor(cons);
+        return `
+      <div class="component-item" style="--comp-color: ${color}">
+        <div class="component-color-bar"></div>
         <div class="component-header">
-          <span class="component-name">${comp.name}</span>
-          <span class="component-badge">${labelForCategory(comp.category)}</span>
+          <div class="component-title-row">
+            <span class="component-name">${escapeHtml(comp.name || '')}</span>
+            <span class="component-badge" style="background:${color}22;color:${color};border-color:${color}55">${labelForCategory(comp.category)}</span>
+          </div>
+          <div class="component-instances">×${comp.instances || 0}</div>
         </div>
-        <div class="component-meta">
-          <span>📍 ${comp.instances} 个实例</span>
-          <span>🎯 一致性 ${comp.consistency}%</span>
+        <div class="component-consistency-row">
+          <div class="component-consistency-bar">
+            <div class="component-consistency-fill" style="width:${cons}%;background:${consColor}"></div>
+          </div>
+          <div class="component-consistency-num" style="color:${consColor}">${cons}%</div>
         </div>
-        <div class="component-variants">
-          变体：${comp.variants?.join(', ') || '无'}
-        </div>
-        ${comp.notes ? `<div style="margin-top: 8px; font-size: 13px; color: var(--color-text-mute);">${comp.notes}</div>` : ''}
+        ${comp.variants?.length ? `<div class="component-variants">${comp.variants.map(v => `<span class="variant-chip">${escapeHtml(v)}</span>`).join('')}</div>` : ''}
+        ${comp.notes ? `<div class="component-notes">${escapeHtml(comp.notes)}</div>` : ''}
       </div>
-    `
-      )
+    `;
+      })
       .join('');
     document.getElementById('componentsSection').style.display = 'block';
   }
@@ -507,11 +517,16 @@ function renderResults(analysis, fullData) {
     suggestionsList.innerHTML = analysis.suggestions
       .map(
         (sug) => `
-      <div class="suggestion-item">
-        <div class="suggestion-priority">${localize(PRIORITY_LABELS, sug.priority, sug.priority)}</div>
-        <div class="suggestion-title">${sug.title}</div>
-        <div class="suggestion-desc">${sug.description}</div>
-        <div class="suggestion-impact">💰 预期收益：${sug.impact} · 工作量：${localize(EFFORT_LABELS, sug.effort, sug.effort)}</div>
+      <div class="suggestion-item suggestion-${sug.priority || 'low'}">
+        <div class="suggestion-head">
+          <span class="suggestion-priority-badge suggestion-${sug.priority || 'low'}">${localize(PRIORITY_LABELS, sug.priority, sug.priority)}</span>
+          <span class="suggestion-title">${escapeHtml(sug.title || '')}</span>
+        </div>
+        <div class="suggestion-desc">${escapeHtml(sug.description || '')}</div>
+        <div class="suggestion-footer">
+          <span class="suggestion-tag">💰 ${escapeHtml(sug.impact || '')}</span>
+          <span class="suggestion-tag">${effortIcon(sug.effort)} ${localize(EFFORT_LABELS, sug.effort, sug.effort)}</span>
+        </div>
       </div>
     `
       )
@@ -519,45 +534,74 @@ function renderResults(analysis, fullData) {
     document.getElementById('suggestionsSection').style.display = 'block';
   }
 
-  // Colors
+  // Colors - big swatch grid
   if (analysis.colorPalette && analysis.colorPalette.length > 0) {
+    const maxFreq = Math.max(...analysis.colorPalette.map(c => c.frequency || 1));
     const colorGrid = document.getElementById('colorGrid');
     colorGrid.innerHTML = analysis.colorPalette
-      .map(
-        (color) => `
-      <div class="color-item">
-        <div class="color-swatch" style="background-color: ${color.hex}; border-color: ${color.hex}80;"></div>
-        <div class="color-info">
-          <div class="color-name">${color.name}</div>
-          <div class="color-hex">${color.hex}</div>
-          <div class="color-usage">使用 ${color.frequency} 次</div>
+      .map((color) => {
+        const freq = color.frequency || 0;
+        const percent = Math.round((freq / maxFreq) * 100);
+        const isLight = isLightColor(color.hex);
+        return `
+      <div class="color-tile" style="background: ${color.hex}; color: ${isLight ? '#0B0D14' : '#fff'}">
+        <div class="color-tile-top">
+          <div class="color-tile-hex">${color.hex}</div>
+          <div class="color-tile-name">${escapeHtml(color.name || '')}</div>
+        </div>
+        <div class="color-tile-bottom">
+          <div class="color-tile-usage" title="${escapeHtml(color.usage || '')}">${escapeHtml(color.usage || '')}</div>
+          <div class="color-tile-freq">
+            <div class="color-tile-freq-bar" style="width:${percent}%; background:${isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)'}"></div>
+            <div class="color-tile-freq-num">×${freq}</div>
+          </div>
         </div>
       </div>
-    `
-      )
+    `;
+      })
       .join('');
     document.getElementById('colorSection').style.display = 'block';
   }
 
-  // Typography
+  // Typography - live preview
   if (analysis.typography && analysis.typography.length > 0) {
     const typographyList = document.getElementById('typographyList');
     typographyList.innerHTML = analysis.typography
-      .map(
-        (typo) => `
-      <div class="typography-item">
-        <div class="typography-name">${typo.name}</div>
-        <div class="typography-details">
-          <span>字号：${typo.sizes?.join(', ') || '-'}</span>
-          <span>字重：${typo.weights?.join(', ') || '-'}</span>
-          <span>使用：${typo.usage}</span>
+      .map((typo) => {
+        const sizes = Array.isArray(typo.sizes) ? typo.sizes.filter(s => s != null).sort((a,b) => b - a) : [];
+        const previewSize = sizes[0] || 16;
+        const weight = Array.isArray(typo.weights) && typo.weights.length ? typo.weights[0] : 500;
+        return `
+      <div class="typo-item">
+        <div class="typo-preview" style="font-size:${Math.min(previewSize, 42)}px; font-weight:${weight}">
+          永 Aa 设计系统 · Design System
+        </div>
+        <div class="typo-info">
+          <div class="typo-name">${escapeHtml(typo.name || '未命名')}</div>
+          <div class="typo-meta">
+            ${sizes.length ? `<span class="typo-chip">字号 ${sizes.join(' / ')}px</span>` : ''}
+            ${Array.isArray(typo.weights) && typo.weights.length ? `<span class="typo-chip">字重 ${typo.weights.join(' / ')}</span>` : ''}
+          </div>
+          ${typo.usage ? `<div class="typo-usage">${escapeHtml(typo.usage)}</div>` : ''}
         </div>
       </div>
-    `
-      )
+    `;
+      })
       .join('');
     document.getElementById('typographySection').style.display = 'block';
   }
+}
+
+function isLightColor(hex) {
+  if (!hex || !hex.startsWith('#')) return false;
+  const h = hex.replace('#', '');
+  const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+  if (full.length < 6) return false;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 155;
 }
 
 const CATEGORY_COLORS = {
@@ -680,6 +724,76 @@ function localize(map, key, fallback) {
   if (!key) return fallback || '';
   const norm = String(key).toLowerCase().replace(/[\s-]/g, '_');
   return map[norm] || key;
+}
+
+function effortIcon(effort) {
+  const k = String(effort || '').toLowerCase();
+  if (k === 'quick') return '⚡';
+  if (k === 'complex') return '🏋️';
+  return '🕒';
+}
+
+function scoreColor(score) {
+  if (score == null) return '#64748B';
+  if (score >= 85) return '#10B981';
+  if (score >= 70) return '#3B82F6';
+  if (score >= 50) return '#F59E0B';
+  return '#EF4444';
+}
+
+function updateHeroRing(score) {
+  const el = document.getElementById('heroRingFill');
+  if (!el) return;
+  const s = typeof score === 'number' ? Math.max(0, Math.min(100, score)) : 0;
+  const R = 52;
+  const C = 2 * Math.PI * R;
+  const offset = C * (1 - s / 100);
+  el.style.strokeDasharray = C.toFixed(2);
+  el.style.strokeDashoffset = offset.toFixed(2);
+  el.style.stroke = scoreColor(score);
+  const numEl = document.getElementById('summaryConsistency');
+  if (numEl) numEl.style.color = scoreColor(score);
+}
+
+function renderIssueStatsBar(issues) {
+  const bar = document.getElementById('issueStatsBar');
+  if (!bar) return;
+  if (!issues || issues.length === 0) {
+    bar.style.display = 'none';
+    return;
+  }
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+  issues.forEach(i => {
+    const s = (i.severity || 'low').toLowerCase();
+    if (counts[s] != null) counts[s]++;
+  });
+  const total = issues.length;
+  const configs = [
+    { key: 'critical', label: '严重', color: '#DC2626', emoji: '🔴' },
+    { key: 'high',     label: '高',   color: '#F97316', emoji: '🟠' },
+    { key: 'medium',   label: '中',   color: '#F59E0B', emoji: '🟡' },
+    { key: 'low',      label: '低',   color: '#3B82F6', emoji: '🔵' },
+  ];
+  bar.innerHTML = `
+    <div class="isb-head">
+      <span class="isb-title">共发现 <b>${total}</b> 个问题</span>
+    </div>
+    <div class="isb-track">
+      ${configs.map(c => counts[c.key] > 0
+        ? `<div class="isb-seg" style="flex: ${counts[c.key]}; background: ${c.color}" title="${c.label}: ${counts[c.key]}"></div>`
+        : '').join('')}
+    </div>
+    <div class="isb-legend">
+      ${configs.map(c => `
+        <span class="isb-chip ${counts[c.key] === 0 ? 'is-zero' : ''}">
+          <span class="isb-dot" style="background: ${c.color}"></span>
+          <span>${c.label}</span>
+          <b>${counts[c.key]}</b>
+        </span>
+      `).join('')}
+    </div>
+  `;
+  bar.style.display = 'block';
 }
 
 let annotationState = { boxes: [], imgW: 0, imgH: 0 };
