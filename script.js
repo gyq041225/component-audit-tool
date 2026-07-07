@@ -366,21 +366,71 @@ function renderResults(analysis, fullData) {
 }
 
 const CATEGORY_COLORS = {
-  button:     '#EF4444',
-  card:       '#3B82F6',
-  input:      '#10B981',
-  navigation: '#A855F7',
-  nav:        '#A855F7',
-  icon:       '#F59E0B',
-  text:       '#64748B',
-  form:       '#14B8A6',
-  modal:      '#EC4899',
-  other:      '#6366F1',
+  button:       '#EF4444',
+  card:         '#3B82F6',
+  input:        '#10B981',
+  navigation:   '#A855F7',
+  nav:          '#A855F7',
+  icon:         '#F59E0B',
+  text:         '#64748B',
+  form:         '#14B8A6',
+  modal:        '#EC4899',
+  status:       '#22C55E',
+  data_display: '#0EA5E9',
+  datadisplay:  '#0EA5E9',
+  chart:        '#0EA5E9',
+  table:        '#0EA5E9',
+  list:         '#8B5CF6',
+  tag:          '#F97316',
+  badge:        '#F97316',
+  avatar:       '#EAB308',
+  image:        '#EAB308',
+  progress:     '#84CC16',
+  header:       '#06B6D4',
+  footer:       '#06B6D4',
+  sidebar:      '#7C3AED',
+  toolbar:      '#7C3AED',
+  other:        '#6366F1',
 };
 
+const CATEGORY_LABELS = {
+  button:       '按钮',
+  card:         '卡片',
+  input:        '输入框',
+  navigation:   '导航',
+  nav:          '导航',
+  icon:         '图标',
+  text:         '文本',
+  form:         '表单',
+  modal:        '弹窗',
+  status:       '状态',
+  data_display: '数据展示',
+  datadisplay:  '数据展示',
+  chart:        '图表',
+  table:        '表格',
+  list:         '列表',
+  tag:          '标签',
+  badge:        '徽章',
+  avatar:       '头像',
+  image:        '图片',
+  progress:     '进度',
+  header:       '页头',
+  footer:       '页脚',
+  sidebar:      '侧边栏',
+  toolbar:      '工具栏',
+  other:        '其他',
+};
+
+function normalizeCategory(cat) {
+  return String(cat || 'other').toLowerCase().replace(/[\s-]/g, '_');
+}
+
 function colorForCategory(cat) {
-  const key = (cat || 'other').toLowerCase();
-  return CATEGORY_COLORS[key] || CATEGORY_COLORS.other;
+  return CATEGORY_COLORS[normalizeCategory(cat)] || CATEGORY_COLORS.other;
+}
+
+function labelForCategory(cat) {
+  return CATEGORY_LABELS[normalizeCategory(cat)] || cat || '其他';
 }
 
 let annotationState = { boxes: [], imgW: 0, imgH: 0 };
@@ -496,7 +546,7 @@ function renderLegend(boxes) {
     .map(([cat, count]) => `
       <span class="legend-item">
         <span class="legend-dot" style="background: ${colorForCategory(cat)}"></span>
-        <span class="legend-label">${cat}</span>
+        <span class="legend-label">${labelForCategory(cat)}</span>
         <span class="legend-count">${count}</span>
       </span>
     `).join('');

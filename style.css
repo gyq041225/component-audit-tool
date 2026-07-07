@@ -1124,7 +1124,7 @@ body {
 }
 
 .legend-label {
-  text-transform: capitalize;
+  font-weight: 500;
 }
 
 .legend-count {
