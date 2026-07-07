@@ -125,6 +125,8 @@ app.post('/api/audit', async (req, res) => {
       generationConfig: {
         responseMimeType: 'application/json',
         maxOutputTokens: 16384,
+        temperature: 0.25,
+        topP: 0.9,
       },
     });
 
@@ -207,6 +209,8 @@ app.post('/api/audit-figma', async (req, res) => {
       generationConfig: {
         responseMimeType: 'application/json',
         maxOutputTokens: 12288,
+        temperature: 0.25,
+        topP: 0.9,
       },
     });
 

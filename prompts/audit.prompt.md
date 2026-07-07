@@ -19,6 +19,35 @@ Keep these ENGLISH (they are enum values, not display text):
 5. **Rate the design system maturity** (1-10)
 6. **Provide actionable recommendations**
 
+## Scoring Rubric (USE THIS EXACT RUBRIC — do not rely on gut feeling)
+
+### `consistency_score` (0-100)
+Start from 100 and deduct as follows:
+- Each near-duplicate color (< 5% RGB delta between two colors used separately): **-5**
+- Each unexpected font-size not on a clean scale (e.g. 13px alongside 12/14/16): **-4**
+- Each odd corner radius not on a clean scale (e.g. 7px alongside 4/8/12): **-4**
+- Each spacing/padding value outside a 4/8 grid: **-3**
+- Each pair of visually-identical components with subtle style drift: **-6**
+- Each button/input variant that breaks the established pattern: **-5**
+Floor at 0. If you find fewer than 3 total deductions, do NOT go below 85.
+Round to nearest 5 (i.e. only output 100, 95, 90, 85, 80, ..., 5, 0).
+
+### `maturity_level` (1-10)
+- **9-10**: Clear tokens, systematic scales, few or no drifts, obvious component library.
+- **7-8**: Mostly consistent, minor drifts, some tokens visible.
+- **5-6**: Mixed — some systematic parts, some ad-hoc.
+- **3-4**: Little systematic thinking, many one-off styles.
+- **1-2**: Chaotic, no visible design system.
+Do not use 0.
+
+### `overallQuality`
+- `excellent` if consistency_score ≥ 90
+- `good` if 75-89
+- `fair` if 55-74
+- `needs_work` if < 55
+
+**Be deterministic** — apply the rubric mechanically, don't second-guess.
+
 ## Bounding Box Format
 
 For each component instance you can visually locate, provide `bbox: [y_min, x_min, y_max, x_max]` using Gemini's standard 0-1000 normalized coordinates:

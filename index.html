@@ -12,11 +12,12 @@
       <div class="header-inner">
         <div class="header-top">
           <div class="logo">
-            <span class="logo-icon">⚙️</span>
+            <span class="logo-icon" data-icon="logo"></span>
             <span class="logo-text">Component Audit Tool</span>
           </div>
           <button class="btn-history" id="historyBtn" onclick="toggleHistory()">
-            <span>🕐 历史记录</span>
+            <span data-icon="history"></span>
+            <span>历史记录</span>
             <span class="history-count" id="historyCount" style="display: none">0</span>
           </button>
         </div>
@@ -28,7 +29,7 @@
     <div class="history-drawer" id="historyDrawer">
       <div class="history-drawer-inner">
         <div class="history-drawer-head">
-          <h2 class="history-drawer-title">🕐 分析历史</h2>
+          <h2 class="history-drawer-title"><span data-icon="history"></span> 分析历史</h2>
           <div class="history-drawer-actions">
             <button class="btn-secondary btn-sm" id="clearHistoryBtn" onclick="clearHistory()">清空全部</button>
             <button class="btn-secondary btn-sm" onclick="toggleHistory()">关闭</button>
@@ -46,13 +47,13 @@
     <main class="main">
       <section class="upload-section">
         <div class="mode-tabs">
-          <button class="mode-tab active" data-mode="image" onclick="switchMode('image')">📸 上传截图</button>
-          <button class="mode-tab" data-mode="figma" onclick="switchMode('figma')">🎨 Figma 链接</button>
+          <button class="mode-tab active" data-mode="image" onclick="switchMode('image')"><span data-icon="camera"></span><span>上传截图</span></button>
+          <button class="mode-tab" data-mode="figma" onclick="switchMode('figma')"><span data-icon="figma"></span><span>Figma 链接</span></button>
         </div>
 
         <div id="imageMode">
           <div class="upload-zone" id="uploadZone">
-            <div class="upload-icon">📸</div>
+            <div class="upload-icon" data-icon="image"></div>
             <div class="upload-text">
               <p class="upload-title">拖拽或点击上传设计稿</p>
               <p class="upload-hint">支持 PNG、JPG、WebP 格式（推荐 1200px+ 宽度）</p>
@@ -74,7 +75,7 @@
 
         <div id="figmaMode" style="display: none">
           <div class="figma-input-zone">
-            <div class="upload-icon">🎨</div>
+            <div class="upload-icon" data-icon="figma"></div>
             <p class="upload-title">粘贴 Figma 文件链接</p>
             <p class="upload-hint">支持 figma.com/file/... 或 figma.com/design/... 链接（文件需要你的 Token 有访问权限）</p>
             <input
@@ -102,7 +103,7 @@
       <section class="spec-section">
         <details class="spec-details" id="specDetails">
           <summary class="spec-summary">
-            <span class="spec-summary-title">📋 设计规范（可选）</span>
+            <span class="spec-summary-title"><span data-icon="clipboard"></span> 设计规范（可选）</span>
             <span class="spec-summary-hint">加上规范后，AI 会对照检查每一条是否合规</span>
           </summary>
           <div class="spec-body">
@@ -121,7 +122,7 @@
 
             <div id="specFileMode" style="display: none">
               <div class="spec-upload-zone" id="specUploadZone">
-                <div class="upload-icon">📄</div>
+                <div class="upload-icon" data-icon="file"></div>
                 <p class="upload-title">上传规范文档</p>
                 <p class="upload-hint">支持 PDF / JSON / TXT / MD 格式</p>
                 <input type="file" id="specFileInput" accept=".pdf,.json,.txt,.md,application/pdf,application/json,text/plain,text/markdown" hidden />
@@ -138,7 +139,7 @@
       <section class="action-section">
         <button class="btn-primary" id="analyzeBtn" onclick="startAnalysis()">
           <span id="btnText">开始分析</span>
-          <span id="btnSpinner" style="display: none">⏳</span>
+          <span id="btnSpinner" style="display: none" data-icon="loader"></span>
         </button>
       </section>
 
@@ -146,7 +147,7 @@
         <!-- Annotated Preview -->
         <div class="section-card" id="annotationSection" style="display: none">
           <div class="annotation-header">
-            <h2 class="section-title" style="margin: 0">🎯 组件位置标注</h2>
+            <h2 class="section-title" style="margin: 0"><span data-icon="target"></span> 组件位置标注</h2>
             <div class="annotation-controls">
               <label class="annotation-toggle">
                 <input type="checkbox" id="toggleAnnotations" checked />
@@ -180,21 +181,21 @@
           </div>
           <div class="hero-stats">
             <div class="hero-stat">
-              <div class="hero-stat-icon">📦</div>
+              <div class="hero-stat-icon" data-icon="package"></div>
               <div class="hero-stat-body">
                 <div class="hero-stat-num" id="summaryComponents">-</div>
                 <div class="hero-stat-label">组件数量</div>
               </div>
             </div>
             <div class="hero-stat">
-              <div class="hero-stat-icon">🎯</div>
+              <div class="hero-stat-icon" data-icon="target"></div>
               <div class="hero-stat-body">
                 <div class="hero-stat-num" id="summaryMaturity">-</div>
                 <div class="hero-stat-label">系统成熟度</div>
               </div>
             </div>
             <div class="hero-stat">
-              <div class="hero-stat-icon">✨</div>
+              <div class="hero-stat-icon" data-icon="sparkle"></div>
               <div class="hero-stat-body">
                 <div class="hero-stat-num" id="summaryQuality">-</div>
                 <div class="hero-stat-label">整体质量</div>
@@ -208,45 +209,45 @@
 
         <!-- Compliance Section -->
         <div class="section-card" id="complianceSection" style="display: none">
-          <h2 class="section-title">🎯 合规检查</h2>
+          <h2 class="section-title"><span data-icon="target"></span> 合规检查</h2>
           <div class="compliance-summary" id="complianceSummary"></div>
           <div class="compliance-list" id="complianceList"></div>
         </div>
 
         <!-- Issues Section -->
         <div class="section-card" id="issuesSection" style="display: none">
-          <h2 class="section-title">⚠️ 发现的问题</h2>
+          <h2 class="section-title"><span data-icon="alert"></span> 发现的问题</h2>
           <div class="issues-list" id="issuesList"></div>
         </div>
 
         <!-- Components Section -->
         <div class="section-card" id="componentsSection" style="display: none">
-          <h2 class="section-title">🎨 识别的组件</h2>
+          <h2 class="section-title"><span data-icon="layers"></span> 识别的组件</h2>
           <div class="components-list" id="componentsList"></div>
         </div>
 
         <!-- Suggestions Section -->
         <div class="section-card" id="suggestionsSection" style="display: none">
-          <h2 class="section-title">💡 优化建议</h2>
+          <h2 class="section-title"><span data-icon="bulb"></span> 优化建议</h2>
           <div class="suggestions-list" id="suggestionsList"></div>
         </div>
 
         <!-- Color Palette Section -->
         <div class="section-card" id="colorSection" style="display: none">
-          <h2 class="section-title">🎨 色彩系统</h2>
+          <h2 class="section-title"><span data-icon="palette"></span> 色彩系统</h2>
           <div class="color-grid" id="colorGrid"></div>
         </div>
 
         <!-- Typography Section -->
         <div class="section-card" id="typographySection" style="display: none">
-          <h2 class="section-title">🔤 字体系统</h2>
+          <h2 class="section-title"><span data-icon="type"></span> 字体系统</h2>
           <div class="typography-list" id="typographyList"></div>
         </div>
 
         <!-- Export Button -->
         <div class="export-section">
-          <button class="btn-secondary" onclick="exportReport()">📥 导出为 JSON</button>
-          <button class="btn-secondary" onclick="resetAll()">🔄 分析另一个</button>
+          <button class="btn-secondary" onclick="exportReport()"><span data-icon="download"></span><span>导出为 JSON</span></button>
+          <button class="btn-secondary" onclick="resetAll()"><span data-icon="refresh"></span><span>分析另一个</span></button>
         </div>
       </section>
 

@@ -1,3 +1,50 @@
+// ---------- Icons (Lucide-style, 1.5px stroke, currentColor) ----------
+const ICONS = {
+  logo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7M17.5 14v7"/></svg>',
+  image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
+  figma: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5"/><path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12z"/><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0"/><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0"/><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5"/></svg>',
+  history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>',
+  clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>',
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3z"/><line x1="12" x2="12" y1="9" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>',
+  layers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18-9 4a2 2 0 0 0 0 3.64l9 4a2 2 0 0 0 1.66 0l9-4a2 2 0 0 0 0-3.64l-9-4a2 2 0 0 0-1.66 0Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg>',
+  palette: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5v-1c0-.4.1-.7.4-.9.3-.2.6-.4 1-.4h1.5c2.8 0 5-2.2 5-5C21.5 6.6 17.2 2 12 2z"/></svg>',
+  type: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>',
+  camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"/></svg>',
+  loader: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon-spin"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+  dumbbell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829zM5.343 2.515a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829L6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829z"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>',
+  package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>',
+  sparkle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>',
+};
+
+function icon(name, cls = 'icon') {
+  const svg = ICONS[name];
+  if (!svg) return '';
+  return svg.replace('<svg ', `<svg class="${cls}" `);
+}
+
+function hydrateIcons(root = document) {
+  root.querySelectorAll('[data-icon]').forEach((el) => {
+    if (el.dataset.iconHydrated === '1') return;
+    const name = el.dataset.icon;
+    el.innerHTML = icon(name);
+    el.dataset.iconHydrated = '1';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => hydrateIcons());
+
 let selectedImageBase64 = null;
 let selectedImageType = null;
 let analysisResult = null;
@@ -120,27 +167,27 @@ function renderHistoryList() {
     const timeStr = `${time.getMonth() + 1}月${time.getDate()}日 ${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`;
     const score = r.summary?.consistency_score;
     const quality = r.summary?.overallQuality;
-    const sourceIcon = r.source === 'figma' ? '🎨' : '📸';
+    const sourceIconName = r.source === 'figma' ? 'figma' : 'camera';
     const sourceLabel = r.source === 'figma' ? 'Figma' : '截图';
-    const specTag = r.hasSpec ? '<span class="history-tag">📋 规范</span>' : '';
+    const specTag = r.hasSpec ? `<span class="history-tag">${icon('clipboard', 'icon icon-xs')} 规范</span>` : '';
 
     return `
       <div class="history-item" onclick="openHistory('${r.id}')">
         ${r.thumbnail
           ? `<img class="history-thumb" src="${r.thumbnail}" alt="thumb" />`
-          : `<div class="history-thumb-placeholder">${sourceIcon}</div>`}
+          : `<div class="history-thumb-placeholder">${icon(sourceIconName)}</div>`}
         <div class="history-body">
           <div class="history-name" title="${escapeHtml(r.name || '未命名')}">${escapeHtml(r.name || '未命名')}</div>
           <div class="history-meta">
-            <span>${sourceIcon} ${sourceLabel}</span>
+            <span class="history-meta-inline">${icon(sourceIconName, 'icon icon-xs')} ${sourceLabel}</span>
             <span>·</span>
             <span>${timeStr}</span>
-            ${score != null ? `<span>·</span><span>⭐ ${score}%</span>` : ''}
+            ${score != null ? `<span>·</span><span class="history-meta-inline">${icon('target', 'icon icon-xs')} ${score}%</span>` : ''}
             ${specTag}
           </div>
           ${quality ? `<div class="history-quality">${localize(QUALITY_LABELS, quality, quality)}</div>` : ''}
         </div>
-        <button class="history-delete" onclick="event.stopPropagation(); deleteHistory('${r.id}')" title="删除">×</button>
+        <button class="history-delete" onclick="event.stopPropagation(); deleteHistory('${r.id}')" title="删除">${icon('x')}</button>
       </div>
     `;
   }).join('');
@@ -524,7 +571,7 @@ function renderResults(analysis, fullData) {
         </div>
         <div class="suggestion-desc">${escapeHtml(sug.description || '')}</div>
         <div class="suggestion-footer">
-          <span class="suggestion-tag">💰 ${escapeHtml(sug.impact || '')}</span>
+          <span class="suggestion-tag">${icon('coin', 'icon icon-xs')} ${escapeHtml(sug.impact || '')}</span>
           <span class="suggestion-tag">${effortIcon(sug.effort)} ${localize(EFFORT_LABELS, sug.effort, sug.effort)}</span>
         </div>
       </div>
@@ -728,9 +775,9 @@ function localize(map, key, fallback) {
 
 function effortIcon(effort) {
   const k = String(effort || '').toLowerCase();
-  if (k === 'quick') return '⚡';
-  if (k === 'complex') return '🏋️';
-  return '🕒';
+  if (k === 'quick') return icon('bolt', 'icon icon-xs');
+  if (k === 'complex') return icon('dumbbell', 'icon icon-xs');
+  return icon('clock', 'icon icon-xs');
 }
 
 function scoreColor(score) {
@@ -942,7 +989,8 @@ function handleSpecFile(file) {
   reader.onload = (e) => {
     const base64 = e.target.result.split(',')[1];
     specFileData = { base64, type: file.type, name: file.name };
-    document.getElementById('specFileName').textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    const info = document.getElementById('specFileName');
+    info.innerHTML = `${icon('file', 'icon icon-xs')} <span>${escapeHtml(file.name)} (${(file.size / 1024).toFixed(1)} KB)</span>`;
     document.getElementById('specFileInfo').style.display = 'flex';
     document.getElementById('specUploadZone').style.display = 'none';
   };
@@ -982,11 +1030,11 @@ function renderCompliance(analysis) {
   const sorted = [...checks].sort((a, b) => (order[a.status] ?? 3) - (order[b.status] ?? 3));
 
   document.getElementById('complianceList').innerHTML = sorted.map(c => {
-    const icon = c.status === 'pass' ? '✅' : c.status === 'fail' ? '❌' : '⚠️';
+    const statusIcon = c.status === 'pass' ? icon('check') : c.status === 'fail' ? icon('x') : icon('minus');
     return `
       <div class="compliance-item ${c.status}">
         <div class="compliance-head">
-          <span class="compliance-icon">${icon}</span>
+          <span class="compliance-icon compliance-${c.status}">${statusIcon}</span>
           <span class="compliance-rule">${escapeHtml(c.rule || '')}</span>
           ${c.severity ? `<span class="compliance-severity ${c.severity}">${localize(SEVERITY_LABELS, c.severity, c.severity)}</span>` : ''}
         </div>
@@ -1021,7 +1069,7 @@ function renderFigmaBanner(data) {
   const radii = data.rawTokens?.cornerRadii || [];
 
   banner.innerHTML = `
-    <div class="figma-banner-title">🎨 精确数据来自 Figma 文件</div>
+    <div class="figma-banner-title">${icon('figma', 'icon icon-xs')} 精确数据来自 Figma 文件</div>
     <div class="figma-banner-name">${data.fileName || ''} · ${data.pages?.length || 0} 个页面</div>
     <div class="figma-banner-grid">
       <div><span class="fb-num">${s.totalColors || 0}</span><span class="fb-label">种颜色</span></div>
