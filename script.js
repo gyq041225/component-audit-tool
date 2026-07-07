@@ -252,13 +252,7 @@ function renderResults(analysis, fullData) {
   document.getElementById('summaryConsistency').textContent = `${analysis.summary?.consistency_score || '-'}%`;
   document.getElementById('summaryMaturity').textContent = `${analysis.summary?.maturity_level || '-'}/10`;
 
-  const qualityMap = {
-    excellent: '优秀',
-    good: '良好',
-    fair: '一般',
-    needs_work: '需要改进',
-  };
-  document.getElementById('summaryQuality').textContent = qualityMap[analysis.summary?.overallQuality] || '-';
+  document.getElementById('summaryQuality').textContent = localize(QUALITY_LABELS, analysis.summary?.overallQuality, '-');
 
   // Issues
   if (analysis.issues && analysis.issues.length > 0) {
@@ -268,8 +262,8 @@ function renderResults(analysis, fullData) {
         (issue) => `
       <div class="issue-item ${issue.severity}">
         <div class="issue-header">
-          <span class="issue-severity">${issue.severity}</span>
-          <span class="issue-type">${issue.type}</span>
+          <span class="issue-severity">${localize(SEVERITY_LABELS, issue.severity, issue.severity)}</span>
+          <span class="issue-type">${localize(ISSUE_TYPE_LABELS, issue.type, issue.type)}</span>
         </div>
         <div class="issue-desc">${issue.description}</div>
         <div class="issue-affected">受影响组件：${issue.affectedComponents?.join(', ') || '不详'}</div>
@@ -289,7 +283,7 @@ function renderResults(analysis, fullData) {
       <div class="component-item">
         <div class="component-header">
           <span class="component-name">${comp.name}</span>
-          <span class="component-badge">${comp.category}</span>
+          <span class="component-badge">${labelForCategory(comp.category)}</span>
         </div>
         <div class="component-meta">
           <span>📍 ${comp.instances} 个实例</span>
@@ -313,10 +307,10 @@ function renderResults(analysis, fullData) {
       .map(
         (sug) => `
       <div class="suggestion-item">
-        <div class="suggestion-priority">${sug.priority}</div>
+        <div class="suggestion-priority">${localize(PRIORITY_LABELS, sug.priority, sug.priority)}</div>
         <div class="suggestion-title">${sug.title}</div>
         <div class="suggestion-desc">${sug.description}</div>
-        <div class="suggestion-impact">💰 预期收益：${sug.impact} · 工作量：${sug.effort}</div>
+        <div class="suggestion-impact">💰 预期收益：${sug.impact} · 工作量：${localize(EFFORT_LABELS, sug.effort, sug.effort)}</div>
       </div>
     `
       )
@@ -431,6 +425,60 @@ function colorForCategory(cat) {
 
 function labelForCategory(cat) {
   return CATEGORY_LABELS[normalizeCategory(cat)] || cat || '其他';
+}
+
+const ISSUE_TYPE_LABELS = {
+  inconsistent_color:      '颜色不一致',
+  inconsistent_spacing:    '间距不一致',
+  inconsistent_typography: '字体不一致',
+  inconsistent_radius:     '圆角不一致',
+  inconsistent_size:       '尺寸不一致',
+  duplicate_component:     '重复组件',
+  missing_variant:         '缺少变体',
+  missing_token:           '缺少设计 Token',
+  spec_violation:          '违反规范',
+  accessibility:           '可访问性问题',
+  alignment:               '对齐问题',
+  hierarchy:               '层级问题',
+};
+
+const SEVERITY_LABELS = {
+  critical: '严重',
+  high:     '高',
+  medium:   '中',
+  low:      '低',
+};
+
+const PRIORITY_LABELS = {
+  high:   '高优先级',
+  medium: '中优先级',
+  low:    '低优先级',
+};
+
+const EFFORT_LABELS = {
+  quick:   '快速',
+  medium:  '中等',
+  complex: '复杂',
+};
+
+const SUGGESTION_CATEGORY_LABELS = {
+  consolidation:    '整合合并',
+  standardization:  '标准化',
+  expansion:        '扩展',
+  align_to_spec:    '对齐规范',
+};
+
+const QUALITY_LABELS = {
+  excellent:   '优秀',
+  good:        '良好',
+  fair:        '一般',
+  needs_work:  '需要改进',
+};
+
+function localize(map, key, fallback) {
+  if (!key) return fallback || '';
+  const norm = String(key).toLowerCase().replace(/[\s-]/g, '_');
+  return map[norm] || key;
 }
 
 let annotationState = { boxes: [], imgW: 0, imgH: 0 };
@@ -625,7 +673,7 @@ function renderCompliance(analysis) {
         <div class="compliance-head">
           <span class="compliance-icon">${icon}</span>
           <span class="compliance-rule">${escapeHtml(c.rule || '')}</span>
-          ${c.severity ? `<span class="compliance-severity ${c.severity}">${c.severity}</span>` : ''}
+          ${c.severity ? `<span class="compliance-severity ${c.severity}">${localize(SEVERITY_LABELS, c.severity, c.severity)}</span>` : ''}
         </div>
         <div class="compliance-meta">
           <div><strong>规范要求:</strong> ${escapeHtml(c.specValue || '未提供')}</div>

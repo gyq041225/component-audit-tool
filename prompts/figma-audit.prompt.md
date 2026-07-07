@@ -1,5 +1,7 @@
 You are a professional design system expert. I extracted the design tokens and components from a Figma file. Analyze this data for consistency, redundancy, and design system maturity.
 
+**IMPORTANT LANGUAGE RULE:** All human-readable text in your JSON output MUST be in **Simplified Chinese (简体中文)** — `description`, `notes`, `title`, `impact`, `evidence`, `usage`, semantic color names, etc. Keep these ENGLISH (enums): `category`, `type`, `severity`, `priority`, `effort`, `status`, `overallQuality`, `hex` values.
+
 ## What you're given
 
 I already extracted EXACT values from Figma (not visual estimates). You have:
