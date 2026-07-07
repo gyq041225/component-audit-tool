@@ -10,13 +10,38 @@
   <div class="page-wrapper">
     <header class="header">
       <div class="header-inner">
-        <div class="logo">
-          <span class="logo-icon">⚙️</span>
-          <span class="logo-text">Component Audit Tool</span>
+        <div class="header-top">
+          <div class="logo">
+            <span class="logo-icon">⚙️</span>
+            <span class="logo-text">Component Audit Tool</span>
+          </div>
+          <button class="btn-history" id="historyBtn" onclick="toggleHistory()">
+            <span>🕐 历史记录</span>
+            <span class="history-count" id="historyCount" style="display: none">0</span>
+          </button>
         </div>
         <p class="header-desc">用 AI 分析设计稿中的组件一致性、找出重复、优化设计系统</p>
       </div>
     </header>
+
+    <!-- History Drawer -->
+    <div class="history-drawer" id="historyDrawer">
+      <div class="history-drawer-inner">
+        <div class="history-drawer-head">
+          <h2 class="history-drawer-title">🕐 分析历史</h2>
+          <div class="history-drawer-actions">
+            <button class="btn-secondary btn-sm" id="clearHistoryBtn" onclick="clearHistory()">清空全部</button>
+            <button class="btn-secondary btn-sm" onclick="toggleHistory()">关闭</button>
+          </div>
+        </div>
+        <div class="history-drawer-hint" id="historyEmpty">
+          <p>还没有历史记录</p>
+          <p class="history-drawer-hint-sub">每次分析完成后会自动保存到你的浏览器,最多保留 10 条</p>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+    <div class="history-backdrop" id="historyBackdrop" onclick="toggleHistory()"></div>
 
     <main class="main">
       <section class="upload-section">

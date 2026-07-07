@@ -5,6 +5,185 @@ let currentMode = 'image';
 let currentSpecMode = 'text';
 let specFileData = null;
 
+// ---------- History ----------
+const HISTORY_KEY = 'component-audit-history';
+const HISTORY_MAX = 10;
+const THUMB_MAX_SIZE = 60 * 1024; // 60KB
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveHistory(list) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' && list.length > 1) {
+      saveHistory(list.slice(0, list.length - 1));
+    }
+  }
+  updateHistoryBadge();
+}
+
+function updateHistoryBadge() {
+  const count = loadHistory().length;
+  const badge = document.getElementById('historyCount');
+  if (!badge) return;
+  if (count === 0) {
+    badge.style.display = 'none';
+  } else {
+    badge.style.display = 'inline-flex';
+    badge.textContent = count;
+  }
+}
+
+async function makeThumbnail(base64, mimeType, maxWidth = 240) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = () => resolve(null);
+    img.src = `data:${mimeType};base64,${base64}`;
+  });
+}
+
+async function addHistory({ source, name, fullData, thumbnail }) {
+  const record = {
+    id: `h_${Math.random().toString(36).slice(2, 10)}_${performance.now().toFixed(0)}`,
+    createdAt: new Date().toISOString(),
+    source,
+    name,
+    thumbnail,
+    summary: fullData?.analysis?.summary || null,
+    hasSpec: !!fullData?.hasSpec,
+    data: fullData,
+  };
+
+  const list = loadHistory();
+  list.unshift(record);
+  const trimmed = list.slice(0, HISTORY_MAX);
+  saveHistory(trimmed);
+}
+
+function deleteHistory(id) {
+  const list = loadHistory().filter(r => r.id !== id);
+  saveHistory(list);
+  renderHistoryList();
+}
+
+function clearHistory() {
+  if (!confirm('确定要清空所有历史记录吗?')) return;
+  localStorage.removeItem(HISTORY_KEY);
+  updateHistoryBadge();
+  renderHistoryList();
+}
+
+function toggleHistory() {
+  const drawer = document.getElementById('historyDrawer');
+  const backdrop = document.getElementById('historyBackdrop');
+  const willOpen = !drawer.classList.contains('open');
+  drawer.classList.toggle('open', willOpen);
+  backdrop.classList.toggle('open', willOpen);
+  if (willOpen) renderHistoryList();
+}
+
+function renderHistoryList() {
+  const list = loadHistory();
+  const empty = document.getElementById('historyEmpty');
+  const listEl = document.getElementById('historyList');
+  const clearBtn = document.getElementById('clearHistoryBtn');
+
+  if (list.length === 0) {
+    empty.style.display = 'block';
+    listEl.style.display = 'none';
+    if (clearBtn) clearBtn.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  listEl.style.display = 'flex';
+  if (clearBtn) clearBtn.style.display = 'inline-flex';
+
+  listEl.innerHTML = list.map(r => {
+    const time = new Date(r.createdAt);
+    const timeStr = `${time.getMonth() + 1}月${time.getDate()}日 ${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`;
+    const score = r.summary?.consistency_score;
+    const quality = r.summary?.overallQuality;
+    const sourceIcon = r.source === 'figma' ? '🎨' : '📸';
+    const sourceLabel = r.source === 'figma' ? 'Figma' : '截图';
+    const specTag = r.hasSpec ? '<span class="history-tag">📋 规范</span>' : '';
+
+    return `
+      <div class="history-item" onclick="openHistory('${r.id}')">
+        ${r.thumbnail
+          ? `<img class="history-thumb" src="${r.thumbnail}" alt="thumb" />`
+          : `<div class="history-thumb-placeholder">${sourceIcon}</div>`}
+        <div class="history-body">
+          <div class="history-name" title="${escapeHtml(r.name || '未命名')}">${escapeHtml(r.name || '未命名')}</div>
+          <div class="history-meta">
+            <span>${sourceIcon} ${sourceLabel}</span>
+            <span>·</span>
+            <span>${timeStr}</span>
+            ${score != null ? `<span>·</span><span>⭐ ${score}%</span>` : ''}
+            ${specTag}
+          </div>
+          ${quality ? `<div class="history-quality">${localize(QUALITY_LABELS, quality, quality)}</div>` : ''}
+        </div>
+        <button class="history-delete" onclick="event.stopPropagation(); deleteHistory('${r.id}')" title="删除">×</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function openHistory(id) {
+  const list = loadHistory();
+  const record = list.find(r => r.id === id);
+  if (!record) return;
+
+  toggleHistory();
+
+  analysisResult = record.data?.analysis;
+
+  if (record.source === 'image' && record.thumbnail) {
+    const m = record.thumbnail.match(/^data:(image\/[^;]+);base64,(.+)$/);
+    if (m) {
+      selectedImageBase64 = m[2];
+      selectedImageType = m[1];
+    }
+  } else {
+    selectedImageBase64 = null;
+    selectedImageType = null;
+  }
+
+  renderResults(record.data.analysis, record.data);
+
+  document.getElementById('resultSection').style.display = 'block';
+  document.getElementById('errorSection').style.display = 'none';
+
+  setTimeout(() => {
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+}
+
+document.addEventListener('DOMContentLoaded', updateHistoryBadge);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const drawer = document.getElementById('historyDrawer');
+    if (drawer && drawer.classList.contains('open')) toggleHistory();
+  }
+});
+
 function switchSpecMode(mode) {
   currentSpecMode = mode;
   document.querySelectorAll('.spec-tab').forEach((tab) => {
@@ -215,6 +394,28 @@ async function startAnalysis() {
 
     analysisResult = data.analysis;
     renderResults(data.analysis, data);
+
+    // Save to history (fire and forget)
+    (async () => {
+      try {
+        let thumbnail = null;
+        let name = '未命名';
+        let source = 'image';
+
+        if (currentMode === 'image' && selectedImageBase64) {
+          thumbnail = await makeThumbnail(selectedImageBase64, selectedImageType);
+          const fileNameEl = document.getElementById('fileName');
+          name = fileNameEl?.textContent?.replace('文件名：', '') || '截图分析';
+        } else if (currentMode === 'figma') {
+          source = 'figma';
+          name = data.fileName || document.getElementById('figmaUrlInput')?.value || 'Figma 文件';
+        }
+
+        await addHistory({ source, name, fullData: data, thumbnail });
+      } catch (err) {
+        console.warn('Failed to save history:', err);
+      }
+    })();
 
     document.getElementById('resultSection').style.display = 'block';
     document.getElementById('errorSection').style.display = 'none';
