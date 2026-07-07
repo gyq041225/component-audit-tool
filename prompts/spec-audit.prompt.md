@@ -42,7 +42,10 @@ Return ONLY valid JSON, no markdown:
       "locations": ["<page>"],
       "variants": ["<variant>"],
       "consistency": <0-100>,
-      "notes": "<observations>"
+      "notes": "<observations>",
+      "bboxes": [
+        { "bbox": [<y_min>, <x_min>, <y_max>, <x_max>], "label": "<optional>" }
+      ]
     }
   ],
   "issues": [
@@ -72,6 +75,10 @@ Return ONLY valid JSON, no markdown:
   ]
 }
 ```
+
+## Bounding Boxes (screenshot mode only)
+
+If the artifact is a screenshot, include `bboxes: [{ bbox: [y_min, x_min, y_max, x_max], label }]` for each component (normalized 0-1000, origin top-left). Return 15-40 representative bboxes total, prioritizing components that violate the spec.
 
 ## Guidelines
 - **Cite spec text verbatim** when possible (short quotes)

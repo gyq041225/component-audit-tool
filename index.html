@@ -118,6 +118,29 @@
       </section>
 
       <section class="result-section" id="resultSection" style="display: none">
+        <!-- Annotated Preview -->
+        <div class="section-card" id="annotationSection" style="display: none">
+          <div class="annotation-header">
+            <h2 class="section-title" style="margin: 0">🎯 组件位置标注</h2>
+            <div class="annotation-controls">
+              <label class="annotation-toggle">
+                <input type="checkbox" id="toggleAnnotations" checked />
+                <span>显示标注</span>
+              </label>
+              <label class="annotation-toggle">
+                <input type="checkbox" id="toggleLabels" checked />
+                <span>显示标签</span>
+              </label>
+            </div>
+          </div>
+          <div class="annotation-viewport" id="annotationViewport">
+            <img id="annotationImage" alt="Annotated design" />
+            <canvas id="annotationCanvas"></canvas>
+            <div class="annotation-tooltip" id="annotationTooltip"></div>
+          </div>
+          <div class="annotation-legend" id="annotationLegend"></div>
+        </div>
+
         <!-- Summary Card -->
         <div class="summary-card">
           <div class="summary-grid">

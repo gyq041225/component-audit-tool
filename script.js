@@ -238,9 +238,11 @@ async function startAnalysis() {
 function renderResults(analysis, fullData) {
   if (fullData?.source === 'figma') {
     renderFigmaBanner(fullData);
+    hideAnnotations();
   } else {
     const banner = document.getElementById('figmaBanner');
     if (banner) banner.style.display = 'none';
+    renderAnnotations(analysis);
   }
 
   renderCompliance(analysis);
@@ -362,6 +364,147 @@ function renderResults(analysis, fullData) {
     document.getElementById('typographySection').style.display = 'block';
   }
 }
+
+const CATEGORY_COLORS = {
+  button:     '#EF4444',
+  card:       '#3B82F6',
+  input:      '#10B981',
+  navigation: '#A855F7',
+  nav:        '#A855F7',
+  icon:       '#F59E0B',
+  text:       '#64748B',
+  form:       '#14B8A6',
+  modal:      '#EC4899',
+  other:      '#6366F1',
+};
+
+function colorForCategory(cat) {
+  const key = (cat || 'other').toLowerCase();
+  return CATEGORY_COLORS[key] || CATEGORY_COLORS.other;
+}
+
+let annotationState = { boxes: [], imgW: 0, imgH: 0 };
+
+function hideAnnotations() {
+  document.getElementById('annotationSection').style.display = 'none';
+}
+
+function renderAnnotations(analysis) {
+  const section = document.getElementById('annotationSection');
+  const boxes = collectBoxes(analysis);
+  if (boxes.length === 0 || !selectedImageBase64) {
+    section.style.display = 'none';
+    return;
+  }
+
+  const img = document.getElementById('annotationImage');
+  img.src = `data:${selectedImageType};base64,${selectedImageBase64}`;
+  img.onload = () => {
+    annotationState = { boxes, imgW: img.naturalWidth, imgH: img.naturalHeight };
+    drawAnnotations();
+    renderLegend(boxes);
+  };
+  section.style.display = 'block';
+
+  const toggleBoxes = document.getElementById('toggleAnnotations');
+  const toggleLabels = document.getElementById('toggleLabels');
+  toggleBoxes.onchange = drawAnnotations;
+  toggleLabels.onchange = drawAnnotations;
+}
+
+function collectBoxes(analysis) {
+  const out = [];
+  const components = analysis?.components || [];
+  components.forEach((comp) => {
+    const bboxes = comp.bboxes || [];
+    bboxes.forEach((b, idx) => {
+      if (!Array.isArray(b.bbox) || b.bbox.length !== 4) return;
+      const [ymin, xmin, ymax, xmax] = b.bbox;
+      if ([ymin, xmin, ymax, xmax].some(v => typeof v !== 'number')) return;
+      out.push({
+        ymin, xmin, ymax, xmax,
+        label: b.label || comp.name,
+        category: comp.category,
+        color: colorForCategory(comp.category),
+        componentName: comp.name,
+        consistency: comp.consistency,
+      });
+    });
+  });
+  return out;
+}
+
+function drawAnnotations() {
+  const canvas = document.getElementById('annotationCanvas');
+  const img = document.getElementById('annotationImage');
+  const showBoxes = document.getElementById('toggleAnnotations').checked;
+  const showLabels = document.getElementById('toggleLabels').checked;
+
+  const displayW = img.clientWidth;
+  const displayH = img.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = displayW * dpr;
+  canvas.height = displayH * dpr;
+  canvas.style.width = displayW + 'px';
+  canvas.style.height = displayH + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, displayW, displayH);
+
+  if (!showBoxes) return;
+
+  annotationState.boxes.forEach((b, i) => {
+    const x = (b.xmin / 1000) * displayW;
+    const y = (b.ymin / 1000) * displayH;
+    const w = ((b.xmax - b.xmin) / 1000) * displayW;
+    const h = ((b.ymax - b.ymin) / 1000) * displayH;
+
+    ctx.fillStyle = b.color + '22';
+    ctx.fillRect(x, y, w, h);
+
+    ctx.strokeStyle = b.color;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, w, h);
+
+    if (showLabels) {
+      ctx.font = '600 11px -apple-system, sans-serif';
+      const text = b.label || 'component';
+      const metrics = ctx.measureText(text);
+      const padX = 6, padY = 4;
+      const bgW = metrics.width + padX * 2;
+      const bgH = 18;
+      const bgX = Math.max(0, x);
+      const bgY = Math.max(0, y - bgH);
+      ctx.fillStyle = b.color;
+      ctx.fillRect(bgX, bgY, bgW, bgH);
+      ctx.fillStyle = 'white';
+      ctx.fillText(text, bgX + padX, bgY + bgH - padY - 1);
+    }
+  });
+}
+
+function renderLegend(boxes) {
+  const legend = document.getElementById('annotationLegend');
+  const byCat = {};
+  boxes.forEach(b => {
+    const key = (b.category || 'other').toLowerCase();
+    byCat[key] = (byCat[key] || 0) + 1;
+  });
+  legend.innerHTML = Object.entries(byCat)
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, count]) => `
+      <span class="legend-item">
+        <span class="legend-dot" style="background: ${colorForCategory(cat)}"></span>
+        <span class="legend-label">${cat}</span>
+        <span class="legend-count">${count}</span>
+      </span>
+    `).join('');
+}
+
+window.addEventListener('resize', () => {
+  if (annotationState.boxes.length) drawAnnotations();
+});
 
 function setupSpecFileInput() {
   const zone = document.getElementById('specUploadZone');
